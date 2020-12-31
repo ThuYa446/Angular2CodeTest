@@ -1,0 +1,6 @@
+{
+    "appname" : "Angular Code Test",
+    "version" : "1.0.0",
+    "title" : "Angular 2", 
+    "apiurl" : "http://localhost:7649/api/v1"
+}
