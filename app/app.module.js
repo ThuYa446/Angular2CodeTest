@@ -20,6 +20,7 @@ var entity_service_1 = require('./framework/entity.service');
 var http_service_1 = require('./framework/http.service');
 var customer_component_1 = require('./customer/customer.component');
 var customerList_component_1 = require('./customer/customerList.component');
+var order_component_1 = require('./order/order.component');
 customerList_component_1.CustomerListComponent;
 var AppModule = (function () {
     function AppModule() {
@@ -35,7 +36,8 @@ var AppModule = (function () {
             declarations: [
                 root_component_1.AppRootComponent,
                 customer_component_1.CustomerComponent,
-                customerList_component_1.CustomerListComponent
+                customerList_component_1.CustomerListComponent,
+                order_component_1.OrderComponent
             ],
             providers: [
                 entity_service_1.EntityService,

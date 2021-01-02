@@ -24,6 +24,7 @@ enableProdMode();
                             <th scope="col">E-mail</th>
                             <th scope="col">PhoneNo</th>
                             <th scope="col">Address</th>
+                            <th scope="col">Order</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -33,6 +34,7 @@ enableProdMode();
                             <td>{{obj.email}}</td>
                             <td>{{obj.phone}}</td>
                             <td>{{obj.address}}</td>
+                            <td> <button type="button" class="btn btn-success btn-sm" (click)="getOrder(obj.id)">Order Now</button> </td>
                         <tr>
                     </tbody>
                 </table>
@@ -74,6 +76,10 @@ export class CustomerListComponent{
 
     goBack(){
         this.router.navigate(['customers']);
+    }
+
+    getOrder(id){
+        this.router.navigate(['/order','read',id]);
     }
 
     ngOnint(){

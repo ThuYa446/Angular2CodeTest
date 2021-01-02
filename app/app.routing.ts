@@ -2,6 +2,7 @@ import { ModuleWithProviders, Component }  from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { CustomerComponent } from './customer/customer.component';
 import { CustomerListComponent } from './customer/customerList.component';
+import { OrderComponent } from './order/order.component';
 CustomerComponent
 const appRoutes: Routes = [
   {
@@ -17,6 +18,12 @@ const appRoutes: Routes = [
   },{
     path: 'customerslist',
     component: CustomerListComponent
+  },{
+    path: 'order',
+    component: OrderComponent
+  },{
+    path: 'order/:cmd/:id',
+    component: OrderComponent
   }
 ];
 
