@@ -23,6 +23,9 @@ var AppRootComponent = (function () {
         this.title = title;
         this.router = router;
         this._mflag = false;
+        this.linkCustomer = false;
+        this.linkOrder = false;
+        this.linkProduct = false;
         this._snack = { 'flag': true, 'msg': '', type: '' };
         entity.rpbean$.subscribe(function (x) {
             if (x.t1 != null && x.t1 === 'custom-loading-off') {
@@ -58,10 +61,28 @@ var AppRootComponent = (function () {
     AppRootComponent.prototype.ngOnInit = function () {
         this.router.navigate(['/customers']);
     };
+    AppRootComponent.prototype.customerRole = function () {
+        this.router.navigate(['/customers']);
+        this.linkCustomer = true;
+        this.linkOrder = false;
+        this.linkProduct = false;
+    };
+    AppRootComponent.prototype.orderRole = function () {
+        this.router.navigate(['/order']);
+        this.linkOrder = true;
+        this.linkCustomer = false;
+        this.linkProduct = false;
+    };
+    AppRootComponent.prototype.productRole = function () {
+        this.router.navigate(['/product']);
+        this.linkProduct = true;
+        this.linkCustomer = false;
+        this.linkOrder = false;
+    };
     AppRootComponent = __decorate([
         core_1.Component({
             selector: 'app-root',
-            template: "\n    <div class='modal' [hidden]='mflag' id=\"loading\">\n        <div class=\"loader\"></div>\n    </div>   \n    <router-outlet></router-outlet>\n    <div id=\"customMsgPopup\" class=\"modal fade clearfix\" role=\"dialog\"  aria-labelledby=\"exampleModalLabel\"\n    aria-hidden=\"true\" tabindex=\"-1\">\n      <div id=\"customMsgPopupSize\" class=\"modal-dialog modal-lg\" style=\"width:30%;\" role=\"document\">  \n        <div class=\"modal-content\">\n          <div class=\"modal-header\" [class.info-color]='_snack.type==\"Information\"' \n                                    [class.danger-color]='_snack.type==\"Error\"'  \n                                    [class.warning-color]='_snack.type==\"Warning\"'\n                                    [class.success-color]='_snack.type==\"Success\"'>\n            \n            <h4 class=\"modal-title w-100 font-weight-bold white-text\">{{_snack.type}}</h4>\n            <button type=\"button\" class=\"close white-text\" data-dismiss=\"modal\" aria-label=\"Close\">\n                <span aria-hidden=\"true\">&times;</span>\n            </button>\n          </div>\n          <div id=\"rootpopupbodytest\" class=\"modal-body\" >\n            <strong style=\"font-size:20px; font-family:sans-serif;\">{{_snack.msg}}</strong>\n          </div>\n          <div class=\"modal-footer\" >\n            <button type=\"button\" class=\"btn btn-primary waves-effect\" data-dismiss=\"modal\">Close</button>\n          </div>\n        </div>\n      </div>\n    </div>\n    "
+            template: "\n    <div class='modal' [hidden]='mflag' id=\"loading\">\n        <div class=\"loader\"></div>\n    </div> \n\n    <!-- Tab Start -->\n  <div class=\"container mt-3\">\n    <ul class=\"nav nav-pills mb-3\" id=\"ex1\" role=\"tablist\">\n      <li class=\"nav-item\" role=\"presentation\">\n        <a class=\"nav-link\" [class.active]=\"linkCustomer\"(click)=\"customerRole()\">Customer</a>\n      </li>\n      <li class=\"nav-item\" role=\"presentation\">\n        <a class=\"nav-link\" [class.active]=\"linkOrder\" (click)=\"orderRole()\">Order</a>\n      </li>\n      <li class=\"nav-item\" role=\"presentation\">\n        <a class=\"nav-link\" [class.active]=\"linkProduct\" (click)=\"productRole()\">Product</a>\n      </li>\n    </ul>\n  </div>\n<!-- Tab End -->\n    <router-outlet></router-outlet>\n    <div id=\"customMsgPopup\" class=\"modal fade clearfix\" role=\"dialog\"  aria-labelledby=\"exampleModalLabel\"\n    aria-hidden=\"true\" tabindex=\"-1\">\n      <div id=\"customMsgPopupSize\" class=\"modal-dialog modal-lg\" style=\"width:30%;\" role=\"document\">  \n        <div class=\"modal-content\">\n          <div class=\"modal-header\" [class.info-color]='_snack.type==\"Information\"' \n                                    [class.danger-color]='_snack.type==\"Error\"'  \n                                    [class.warning-color]='_snack.type==\"Warning\"'\n                                    [class.success-color]='_snack.type==\"Success\"'>\n            \n            <h4 class=\"modal-title w-100 font-weight-bold white-text\">{{_snack.type}}</h4>\n            <button type=\"button\" class=\"close white-text\" data-dismiss=\"modal\" aria-label=\"Close\">\n                <span aria-hidden=\"true\">&times;</span>\n            </button>\n          </div>\n          <div id=\"rootpopupbodytest\" class=\"modal-body\" >\n            <strong style=\"font-size:20px; font-family:sans-serif;\">{{_snack.msg}}</strong>\n          </div>\n          <div class=\"modal-footer\" >\n            <button type=\"button\" class=\"btn btn-primary waves-effect\" data-dismiss=\"modal\">Close</button>\n          </div>\n        </div>\n      </div>\n    </div>\n    "
         }), 
         __metadata('design:paramtypes', [entity_service_1.EntityService, http_service_1.HttpService, platform_browser_1.Title, router_1.Router])
     ], AppRootComponent);

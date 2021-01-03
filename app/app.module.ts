@@ -12,6 +12,8 @@ import {HttpService} from './framework/http.service';
 import { CustomerComponent } from './customer/customer.component';
 import { CustomerListComponent } from './customer/customerList.component';
 import { OrderComponent } from './order/order.component';
+import { ProductComponent } from './product/product.component';
+import { ProductListComponent } from './product/productList.component';
 CustomerListComponent
 @NgModule({
     imports: [
@@ -24,7 +26,9 @@ CustomerListComponent
       AppRootComponent,
       CustomerComponent,
       CustomerListComponent,
-      OrderComponent
+      OrderComponent,
+      ProductComponent,
+      ProductListComponent
     ],
     providers: [
       EntityService,

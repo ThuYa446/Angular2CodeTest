@@ -18,22 +18,16 @@ enableProdMode();
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th scope="col">Customer ID</th>
+                            <th scope="col">Product ID</th>
                             <th scope="col">Name</th>
-                            <th scope="col">E-mail</th>
-                            <th scope="col">PhoneNo</th>
-                            <th scope="col">Address</th>
-                            <th scope="col">Order</th>
+                            <th scope="col">Unit Price</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let obj of _obj" class="table-hover" >
-                            <td style="color:#0000ff;"><a  (click) = "readCustomerById(obj.id)"> {{obj.id}} </a></td>
+                        <tr *ngFor="let obj of productList" class="table-hover" >
+                            <td style="color:#0000ff;"><a  (click) = "readProductById(obj.id)"> {{obj.id}} </a></td>
                             <td>{{obj.name}}</td>
-                            <td>{{obj.email}}</td>
-                            <td>{{obj.phone}}</td>
-                            <td>{{obj.address}}</td>
-                            <td> <button type="button" class="btn btn-success btn-sm" (click)="getOrder(obj.id)">Order Now</button> </td>
+                            <td>{{obj.unitPrice}}</td>
                         <tr>
                     </tbody>
                 </table>
@@ -41,12 +35,12 @@ enableProdMode();
         </div>
     </div>
     `
-}
-)
-export class CustomerListComponent{
-    _obj:any;
+})
+export class ProductListComponent{
+    productList:any;
+
     constructor(private entity :EntityService,private http :HttpService,private router :Router){
-        this.getCustomerData();
+        this.getProductDataList();
     }
 
     showloading(type) {
@@ -54,13 +48,21 @@ export class CustomerListComponent{
         if (type === false) {this.entity.sendBean({t1: 'custom-loading-off'}); }
     }
 
-    getCustomerData(){
-        let url: string = this.entity.apiurl+"/customer";
+    readProductById(id){
+        this.router.navigate(['/product','read',id])
+    }
+
+    goBack(){
+        this.router.navigate(['/product']);
+    }
+
+    getProductDataList(){
+        let url: string = this.entity.apiurl+"/product";
         this.showloading(true);
         this.http.doGet(url).subscribe(
             (data) => {
                 this.showloading(false);
-                this._obj = data.json();
+                this.productList = data.json();
                 console.log(data);
             },
             (error) =>{
@@ -68,20 +70,5 @@ export class CustomerListComponent{
                 console.log(error);
             }
         )
-    }
-    readCustomerById(i){
-        this.router.navigate(['/customers','read',i])
-    }
-
-    goBack(){
-        this.router.navigate(['customers']);
-    }
-
-    getOrder(id){
-        this.router.navigate(['/order','read',id]);
-    }
-
-    ngOnint(){
-
     }
 }

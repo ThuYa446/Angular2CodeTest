@@ -13,7 +13,23 @@ enableProdMode();
     template : `
     <div class='modal' [hidden]='mflag' id="loading">
         <div class="loader"></div>
-    </div>   
+    </div> 
+
+    <!-- Tab Start -->
+  <div class="container mt-3">
+    <ul class="nav nav-pills mb-3" id="ex1" role="tablist">
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" [class.active]="linkCustomer"(click)="customerRole()">Customer</a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" [class.active]="linkOrder" (click)="orderRole()">Order</a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" [class.active]="linkProduct" (click)="productRole()">Product</a>
+      </li>
+    </ul>
+  </div>
+<!-- Tab End -->
     <router-outlet></router-outlet>
     <div id="customMsgPopup" class="modal fade clearfix" role="dialog"  aria-labelledby="exampleModalLabel"
     aria-hidden="true" tabindex="-1">
@@ -42,6 +58,9 @@ enableProdMode();
 })
 export class AppRootComponent implements OnInit{
    _mflag:boolean = false;
+   linkCustomer = false;
+   linkOrder = false;
+   linkProduct = false;
     _snack = { 'flag': true, 'msg': '', type: '' };
         constructor(private entity :EntityService,private http :HttpService,private title :Title,private router :Router){
             entity.rpbean$.subscribe(
@@ -81,6 +100,27 @@ export class AppRootComponent implements OnInit{
 
     ngOnInit(){
       this.router.navigate(['/customers']);
+    }
+
+    customerRole(){
+      this.router.navigate(['/customers']);
+      this.linkCustomer = true;
+      this.linkOrder = false;
+      this.linkProduct = false;
+    }
+
+    orderRole(){
+      this.router.navigate(['/order']);
+      this.linkOrder = true;
+      this.linkCustomer = false;
+      this.linkProduct = false;
+    }
+
+    productRole(){
+      this.router.navigate(['/product']);
+      this.linkProduct = true;
+      this.linkCustomer = false;
+      this.linkOrder = false;
     }
 
     // goClick(){

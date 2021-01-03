@@ -8,69 +8,50 @@ import { Subscription } from 'rxjs/Subscription';
 declare var jQuery: any; 
 enableProdMode();
 @Component({
-    selector : 'customer',
-    template : `
+    selector : 'product',
+    template : ` 
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
                   <form class= "form-horizontal"> 
-                  <legend>Customer</legend> 
+                  <legend>Product</legend> 
                     <div class="form-group row col-md-8">
-                        <button class="btn btn-primary" type="button" (click)="goNew()" [disabled]="btn_new">Add New Customer</button>
+                        <button class="btn btn-primary" type="button" (click)="goNew()" [disabled]="btn_new">Add New Product</button>
                         <button class="btn btn-primary" type="button" (click)="goSave()" [disabled]="btn_save">Save</button>
                         <button class="btn btn-primary" type="button" (click)="goUpdate()" [disabled]="btn_update">Update</button> 
                         <button class="btn btn-danger" type="button" (click)="goDelete()" [disabled]="btn_delete">Delete</button>
                         <button class="btn btn-primary" type="button" (click)="goList()">List</button>
-                        <button class="btn btn-primary float-right" type="button" (click)="goProduct()">Add Product</button>
                     </div>
                     <div class="form-group">
                         <div class="col-md-4" style="font-weight:bold; margin-top:2px">
-                           Customer Name:
+                           Product Name:
                         </div>
                     
                         <div class="col-md-8">
-                            <input class="form-control" type="text" [(ngModel)]="_obj.name" required [ngModelOptions]="{standalone: true}">
+                            <input class="form-control" type="text" [(ngModel)]="product.name" required [ngModelOptions]="{standalone: true}">
                         </div> 
                     </div>
 
                     <div class="form-group">
                         <div class="col-md-4" style="font-weight:bold; margin-top:2px">
-                           E-mail:
+                           Unit Price:
                         </div>
                     
                         <div class="col-md-8">
-                            <input class="form-control" type="text" [(ngModel)]="_obj.email" required [ngModelOptions]="{standalone: true}" >
-                        </div> 
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-md-4" style="font-weight:bold; margin-top:2px">
-                           Phone:
-                        </div>
-                    
-                        <div class="col-md-8">
-                            <input class="form-control" type="text" [(ngModel)]="_obj.phone" required [ngModelOptions]="{standalone: true}">
-                        </div> 
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-4" style="font-weight:bold; margin-top:2px">
-                           Address:
-                        </div>
-                    
-                        <div class="col-md-8">
-                            <input class="form-control" type="text" [(ngModel)]="_obj.address" required [ngModelOptions]="{standalone: true}" >
+                            <input class="form-control" type="text" [(ngModel)]="product.unitPrice" required [ngModelOptions]="{standalone: true}" >
                         </div> 
                     </div>
                   </form>
                 </div>
             </div>
         </div>
-    `
-}
-)
-export class CustomerComponent{
+     `,
+})
+export class ProductComponent{
+
     subscription: Subscription;
-    _obj:any = this.customerObj();
+    product: any = this.getDefaultObj();
+
     btn_save:boolean = false;
     btn_update:boolean = false;
     btn_new:boolean = false;
@@ -80,14 +61,14 @@ export class CustomerComponent{
             let cmd = params['cmd'];
             if (cmd != null && cmd != "" && cmd == "read") {
                 let id = params['id'];
-                this.getCustomerById(id);
+                this.getProductById(id);
                 this.btn_save = true;
             }
         })
     }
 
-    customerObj(){
-        return {"id":0,"name":"","email":"","phone":"","address":""}
+    getDefaultObj(){
+        return {"id":0,"name":"","unitPrice":0}
     }
 
     showCustomMsg(msg, type) {
@@ -105,17 +86,11 @@ export class CustomerComponent{
     validation(){
         let flag:boolean = true;
         let message: string = "";
-        if(this._obj.name === '' || this._obj.name === null || this._obj.name === undefined ){
-            message = "Please Enter Your Name";
+        if(this.product.name === '' || this.product.name === null || this.product.name === undefined ){
+            message = "Please Enter Product Name";
         }else
-        if(this._obj.email === '' || this._obj.email === null || this._obj.email === undefined ){
-            message = "Please Enter Your E-mail";
-        }else
-        if(this._obj.phone === '' || this._obj.phone === null || this._obj.phone === undefined ){
-            message = "Please Enter Your Phone";
-        }else
-        if(this._obj.address === '' || this._obj.address === null || this._obj.address === undefined ){
-            message = "Please Enter Your Address";
+        if(this.product.unitPrice === 0 || this.product.unitPrice === null || this.product.unitPrice === undefined ){
+            message = "Please Enter Unit Price";
         }
         if(message != "" ){
             this.showCustomMsg(message,undefined);
@@ -124,11 +99,27 @@ export class CustomerComponent{
        return flag;
     }
 
+    getProductById(id){
+        let url: string = this.entity.apiurl+'/product/'+id;
+            this.showloading(true);
+            this.http.doGet(url).subscribe(
+                (data) => {
+                    this.product  = data.json();
+                    this.showloading(false);
+                    console.log(data);
+                },
+                (error) =>{
+                    this.showloading(false);
+                    console.log(error);
+                }
+            )
+    }
+
     goSave(){
         if(this.validation()){
-            let url: string = this.entity.apiurl+"/customer";
+            let url: string = this.entity.apiurl+"/product";
             this.showloading(true);
-            this.http.doPost(url,this._obj).subscribe(
+            this.http.doPost(url,this.product).subscribe(
                 (data) => {
                     this.showloading(false);
                     console.log(data);
@@ -140,27 +131,12 @@ export class CustomerComponent{
             )
         }
     }
-    getCustomerById(id){
-        let url: string = this.entity.apiurl+'/customer/'+id;
-            this.showloading(true);
-            this.http.doGet(url).subscribe(
-                (data) => {
-                    this._obj  = data.json();
-                    this.showloading(false);
-                    console.log(data);
-                },
-                (error) =>{
-                    this.showloading(false);
-                    console.log(error);
-                }
-            )
-    }
 
     goUpdate(){
         if(this.validation()){
-            let url: string = this.entity.apiurl+"/customer";
+            let url: string = this.entity.apiurl+"/product";
             this.showloading(true);
-            this.http.doPut(url,this._obj).subscribe(
+            this.http.doPut(url,this.product).subscribe(
                 (data) => {
                     this.showloading(false);
                     console.log(data);
@@ -174,7 +150,7 @@ export class CustomerComponent{
     }
 
     goDelete(){
-        let url: string = this.entity.apiurl+'/customer/'+this._obj.id;
+        let url: string = this.entity.apiurl+'/product/'+this.product.id;
         this.showloading(true);
         this.http.doDelete(url).subscribe(
             (data) => {
@@ -189,19 +165,16 @@ export class CustomerComponent{
         )
     }
 
-    goList(){
-        this.router.navigate(['/customerslist']);
-    }
 
-    goProduct(){
-        this.router.navigate(['/product']);
+    goList(){
+        this.router.navigate(['/productList']);
     }
 
     goNew(){
-        this._obj = this.customerObj();
+        this.product = this.getDefaultObj();
         this.btn_save = false;
         this.btn_update = true;
         this.btn_delete = true;
-        this.router.navigate(['/customers'])
+        this.router.navigate(['/product'])
     }
 }

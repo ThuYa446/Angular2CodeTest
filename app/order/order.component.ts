@@ -50,7 +50,6 @@ enableProdMode();
                                         <input class="form-control" type="text" [(ngModel)]="order.status" required [ngModelOptions]="{standalone: true}">
                                     </div>
                                 </div>
-                                <button class="btn btn-primary" type="button" (click)="goNew()" >Add New Order</button>
                                 <button class="btn btn-primary" type="button" (click)="goSave()">Save</button>
                                 <button class="btn btn-primary" type="button" (click)="goUpdate()" >Update</button> 
                                 <button class="btn btn-danger" type="button" (click)="goDelete()">Delete</button>
@@ -70,11 +69,15 @@ enableProdMode();
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let obj of order.orderItems, let i=index" class="table-hover" >
-                                <td> <button type="button" class="btn btn-success btn-sm" (click)="addNewOrder(obj)"><i class="fas fa-plus" ></i></button></td>
-                                <td><input class="form-control" type="text" (ngModel)="order.quantity" [ngModelOptions]="{standalone: true}"></td>
-                                <td><input class="form-control" type="text" (ngModel)="order.total" [ngModelOptions]="{standalone: true}"></td>
-                                <td><input class="form-control" type="text" (ngModel)="order.proudctId"  [ngModelOptions]="{standalone: true}"></td>
+                            <tr *ngFor="let obj of obj, let i=index" class="table-hover" >
+                                <td> <button type="button" class="btn btn-success btn-sm" (click)="addNewOrder()"><i class="fas fa-plus" ></i></button></td>
+                                <td><input class="form-control" type="text" [(ngModel)]="obj.quantity" [ngModelOptions]="{standalone: true}"></td>
+                                <td><input class="form-control" type="text" [(ngModel)]="obj.total" [ngModelOptions]="{standalone: true}" readOnly="true"></td>
+                                <td>
+                                    <select class="form-control" [(ngModel)]="obj.proudctId" [ngModelOptions]="{standalone: true}" (ngModelChange)="calculateTotalAmt(obj.quantity,obj.proudctId,i)">
+                                        <option *ngFor="let product of productList" value="{{product.id}}">{{product.name}}</option>
+                                    </select>
+                                </td>
                                 <td> <button type="button" class="btn btn-danger btn-sm" (click)="removeOrder(i)"><i class="fas fa-minus" ></i></button> </td>
                             <tr>
                         </tbody>
@@ -86,6 +89,7 @@ enableProdMode();
             </div>
         </div>
     </div>
+    <!-- <input class="form-control" type="text" (ngModel)="order.proudctId"  [ngModelOptions]="{standalone: true}"> -->
     `,
 
 
@@ -93,6 +97,8 @@ enableProdMode();
 export class OrderComponent{
     subscription: Subscription;
     order: any = this.getDefaultObj();
+    obj: any = this.order.orderItems;
+    productList: any;
     constructor(private entity :EntityService,private http :HttpService,private router :Router,private route: ActivatedRoute){
         this.subscription = this.route.params.subscribe(params => {
             let cmd = params['cmd'];
@@ -101,6 +107,7 @@ export class OrderComponent{
                 this.order.customerId = id;
             }
         })
+        this.getProductIdList();
     }
 
     changeDate(date){
@@ -108,11 +115,44 @@ export class OrderComponent{
     }
 
     addNewOrder(obj){
-        this.order.orderItems.push({"id": 0,"quantity": 0,"total": 0,"proudctId": 0});
+        this.order.orderItems.push({"id": 0,"quantity": 0,"total": 0,"productId": 0});
     }
 
     removeOrder(i){
         this.order.orderItems.splice(i,1);
+    }
+
+    showloading(type) {
+        if (type === true) {this.entity.sendBean({t1: 'custom-loading'}); }
+        if (type === false) {this.entity.sendBean({t1: 'custom-loading-off'}); }
+    }
+
+    getProductIdList(){
+        let url: string = this.entity.apiurl+'/product';
+            this.showloading(true);
+            this.http.doGet(url).subscribe(
+                (data) => {
+                    this.productList  = data.json();
+                    this.showloading(false);
+                    console.log(data);
+                },
+                (error) =>{
+                    this.showloading(false);
+                    console.log(error);
+                }
+            )
+    }
+    calculateTotalAmt(quantity,productId,index){
+      for(let i=0;i<this.obj.length;i++){
+          if(i=== index){
+              this.obj[i].total = quantity * this.getUnitPrice(productId);
+          }
+      }
+    }
+
+    getUnitPrice(id){
+        var obj = this.productList.find(x => x.id == id);
+        return obj.unitPrice;
     }
 
     getDefaultObj(){
