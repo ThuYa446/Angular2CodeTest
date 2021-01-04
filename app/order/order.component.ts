@@ -74,13 +74,14 @@ enableProdMode();
                         <div>
                     </div>
                     <div class="card-body">
+                    <div class="card-title text-center"><h2>Order Info</h2></div>
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th scope="col"></th>
                                 <th scope="col">Quantity</th>
                                 <th scope="col">Total</th>
-                                <th scope="col">Product ID</th>
+                                <th scope="col">Product Name</th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
@@ -98,8 +99,6 @@ enableProdMode();
                             <tr>
                         </tbody>
                     </table>
-                    </div>
-                    <div class="card-footer">
                     </div>
                 </div>
             </div>
