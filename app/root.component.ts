@@ -22,9 +22,6 @@ enableProdMode();
         <a class="nav-link" [class.active]="linkCustomer"(click)="customerRole()">Customer</a>
       </li>
       <li class="nav-item" role="presentation">
-        <a class="nav-link" [class.active]="linkOrder" (click)="orderRole()">Order</a>
-      </li>
-      <li class="nav-item" role="presentation">
         <a class="nav-link" [class.active]="linkProduct" (click)="productRole()">Product</a>
       </li>
     </ul>
@@ -59,7 +56,6 @@ enableProdMode();
 export class AppRootComponent implements OnInit{
    _mflag:boolean = false;
    linkCustomer = false;
-   linkOrder = false;
    linkProduct = false;
     _snack = { 'flag': true, 'msg': '', type: '' };
         constructor(private entity :EntityService,private http :HttpService,private title :Title,private router :Router){
@@ -105,14 +101,6 @@ export class AppRootComponent implements OnInit{
     customerRole(){
       this.router.navigate(['/customers']);
       this.linkCustomer = true;
-      this.linkOrder = false;
-      this.linkProduct = false;
-    }
-
-    orderRole(){
-      this.router.navigate(['/order']);
-      this.linkOrder = true;
-      this.linkCustomer = false;
       this.linkProduct = false;
     }
 
@@ -120,7 +108,6 @@ export class AppRootComponent implements OnInit{
       this.router.navigate(['/product']);
       this.linkProduct = true;
       this.linkCustomer = false;
-      this.linkOrder = false;
     }
 
     // goClick(){

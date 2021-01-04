@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import {EntityService} from '../framework/entity.service';
 import {HttpService} from '../framework/http.service';
 import { Subscription } from 'rxjs/Subscription';
-import { Json } from '@angular/core/src/facade/lang';
+import { DatePipe } from '@angular/common';
 
 declare var jQuery: any; 
 enableProdMode();
@@ -18,12 +18,28 @@ enableProdMode();
                     <div class="card-header">
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="row" style="margin-bottom:20px;">
+                                <div class="row" style="margin-bottom:20px;" *ngIf="showSave">
                                     <div class="col-md-2">
                                         Customer ID:
                                     </div>
                                     <div class="col-md-4">
                                         {{order.customerId}}
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-bottom:20px;" *ngIf="showSave">
+                                    <div class="col-md-2">
+                                        Customer Name:
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{order.customer.name}}
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-bottom:20px;" *ngIf="showRead">
+                                    <div class="col-md-2">
+                                        Order ID:
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{order.id}}
                                     </div>
                                 </div>
                                 <div class="row" style="margin-bottom:20px;">
@@ -39,7 +55,7 @@ enableProdMode();
                                         Order Date:
                                     </div>
                                     <div class="col-md-4">
-                                        <input class="form-control" type="date" [(ngModel)]="order.orderDate" required [ngModelOptions]="{standalone: true}" (ngModelChange)="changeDate(order.orderDate)">
+                                        <input class="form-control" type="date" [(ngModel)]="order.orderDate" required [ngModelOptions]="{standalone: true}">
                                     </div>
                                 </div>
                                 <div class="row" style="margin-bottom:20px;">
@@ -78,7 +94,7 @@ enableProdMode();
                                         <option *ngFor="let product of productList" value="{{product.id}}">{{product.name}}</option>
                                     </select>
                                 </td>
-                                <td> <button type="button" class="btn btn-danger btn-sm" (click)="removeOrder(i)"><i class="fas fa-minus" ></i></button> </td>
+                                <td> <button type="button" class="btn btn-danger btn-sm" (click)="removeOrder(i)" [disabled]="i==0"><i class="fas fa-minus" ></i></button> </td>
                             <tr>
                         </tbody>
                     </table>
@@ -98,20 +114,26 @@ export class OrderComponent{
     subscription: Subscription;
     order: any = this.getDefaultObj();
     obj: any = this.order.orderItems;
+    customerName = "";
     productList: any;
+    showSave: boolean = true;
+    showRead: boolean = false;
+    pipe = new DatePipe('en-US');
     constructor(private entity :EntityService,private http :HttpService,private router :Router,private route: ActivatedRoute){
+        this.getProductIdList();
         this.subscription = this.route.params.subscribe(params => {
             let cmd = params['cmd'];
             if (cmd != null && cmd != "" && cmd == "read") {
                 let id = params['id'];
                 this.order.customerId = id;
+                this.getCustomerNameById(id);
+            }
+            if(cmd != null && cmd != "" && cmd == "readId") {
+                let id = params['id'];
+                this.order.id = id;
+                this.readOrderById(id);
             }
         })
-        this.getProductIdList();
-    }
-
-    changeDate(date){
-       // window.alert(date);
     }
 
     addNewOrder(obj){
@@ -155,13 +177,108 @@ export class OrderComponent{
         return obj.unitPrice;
     }
 
+    getCustomerNameById(id){
+        let url: string = this.entity.apiurl+'/customer/'+id;
+            this.showloading(true);
+            this.http.doGet(url).subscribe(
+                (data) => {
+                    let customerObj  = data.json();
+                    this.order.customer = customerObj;
+                    this.showloading(false);
+                    console.log(data);
+                },
+                (error) =>{
+                    this.showloading(false);
+                    console.log(error);
+                }
+            )
+    }
+
+    goSave(){
+        let url: string = this.entity.apiurl+'/order';
+        this.showloading(true);
+        this.http.doPost(url,this.order).subscribe(
+            (data) => {
+                this.showloading(false);
+            },
+            (error) => {
+                this.showloading(false);
+            }
+        )
+    }
+
+    goList(){
+        this.router.navigate(['/orderList'])
+    }
+
+    readOrderById(id){
+        let url: string = this.entity.apiurl+'/order/'+id;
+            this.showloading(true);
+            this.order = this.getDefaultObj();
+            this.http.doGet(url).subscribe(
+                (data) => {
+                    this.order = data.json();
+                    this.order.orderDate = this.pipe.transform(this.order.orderDate, 'MM/dd/yyyy');
+                    this.obj = this.order.orderitems;
+                    this.showSave = false;
+                    this.showRead = true;
+                    this.showloading(false);
+                    console.log(data);
+                },
+                (error) =>{
+                    this.showloading(false);
+                    console.log(error);
+                }
+        )
+    }
+
+    goUpdate(){
+        let url: string = this.entity.apiurl+'/order';
+        this.showloading(true);
+        this.http.doPut(url,this.order).subscribe(
+            (data) => {
+                this.showloading(false);
+            },
+            (error) => {
+                this.showloading(false);
+                console.log(error);
+            }
+        )
+    }
+
+    goDelete(){
+        let url: string = this.entity.apiurl+'/order/'+this.order.id;
+            this.showloading(true);
+            this.order = this.getDefaultObj();
+            this.http.doDelete(url).subscribe(
+                (data) => {
+                    this.showloading(false);
+                    this.router.navigate(['/orderList']);
+                },
+                (error) =>{
+                    this.showloading(false);
+                    console.log(error);
+                }
+        )
+    }
+
+    ngOnInit(){
+        
+    }
+
     getDefaultObj(){
         return {
             "id": 0,
             "orderno": 0,
             "orderDate": Date(),
             "status": "",
-            "customerId": 0,
+            "customer": {
+                "id": 0,
+                "name": "",
+                "email": "",
+                "phone": "",
+                "address": ""
+            },
             "orderItems": [
                 {
                 "id": 0,

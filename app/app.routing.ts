@@ -5,6 +5,7 @@ import { CustomerListComponent } from './customer/customerList.component';
 import { OrderComponent } from './order/order.component';
 import { ProductComponent } from './product/product.component';
 import { ProductListComponent } from './product/productList.component';
+import { OrderListComponent } from './order/orderList.component';
 CustomerComponent
 const appRoutes: Routes = [
   {
@@ -26,6 +27,9 @@ const appRoutes: Routes = [
   },{
     path: 'order/:cmd/:id',
     component: OrderComponent
+  },{
+    path: 'orderList',
+    component: OrderListComponent
   },{
     path: 'product',
     component: ProductComponent

@@ -23,6 +23,7 @@ var customerList_component_1 = require('./customer/customerList.component');
 var order_component_1 = require('./order/order.component');
 var product_component_1 = require('./product/product.component');
 var productList_component_1 = require('./product/productList.component');
+var orderList_component_1 = require('./order/orderList.component');
 customerList_component_1.CustomerListComponent;
 var AppModule = (function () {
     function AppModule() {
@@ -40,6 +41,7 @@ var AppModule = (function () {
                 customer_component_1.CustomerComponent,
                 customerList_component_1.CustomerListComponent,
                 order_component_1.OrderComponent,
+                orderList_component_1.OrderListComponent,
                 product_component_1.ProductComponent,
                 productList_component_1.ProductListComponent
             ],

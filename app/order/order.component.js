@@ -13,6 +13,7 @@ var core_2 = require('@angular/core');
 var router_1 = require('@angular/router');
 var entity_service_1 = require('../framework/entity.service');
 var http_service_1 = require('../framework/http.service');
+var common_1 = require('@angular/common');
 core_2.enableProdMode();
 var OrderComponent = (function () {
     function OrderComponent(entity, http, router, route) {
@@ -23,18 +24,25 @@ var OrderComponent = (function () {
         this.route = route;
         this.order = this.getDefaultObj();
         this.obj = this.order.orderItems;
+        this.customerName = "";
+        this.showSave = true;
+        this.showRead = false;
+        this.pipe = new common_1.DatePipe('en-US');
+        this.getProductIdList();
         this.subscription = this.route.params.subscribe(function (params) {
             var cmd = params['cmd'];
             if (cmd != null && cmd != "" && cmd == "read") {
                 var id = params['id'];
                 _this.order.customerId = id;
+                _this.getCustomerNameById(id);
+            }
+            if (cmd != null && cmd != "" && cmd == "readId") {
+                var id = params['id'];
+                _this.order.id = id;
+                _this.readOrderById(id);
             }
         });
-        this.getProductIdList();
     }
-    OrderComponent.prototype.changeDate = function (date) {
-        // window.alert(date);
-    };
     OrderComponent.prototype.addNewOrder = function (obj) {
         this.order.orderItems.push({ "id": 0, "quantity": 0, "total": 0, "productId": 0 });
     };
@@ -73,13 +81,90 @@ var OrderComponent = (function () {
         var obj = this.productList.find(function (x) { return x.id == id; });
         return obj.unitPrice;
     };
+    OrderComponent.prototype.getCustomerNameById = function (id) {
+        var _this = this;
+        var url = this.entity.apiurl + '/customer/' + id;
+        this.showloading(true);
+        this.http.doGet(url).subscribe(function (data) {
+            var customerObj = data.json();
+            _this.order.customer = customerObj;
+            _this.showloading(false);
+            console.log(data);
+        }, function (error) {
+            _this.showloading(false);
+            console.log(error);
+        });
+    };
+    OrderComponent.prototype.goSave = function () {
+        var _this = this;
+        var url = this.entity.apiurl + '/order';
+        this.showloading(true);
+        this.http.doPost(url, this.order).subscribe(function (data) {
+            _this.showloading(false);
+        }, function (error) {
+            _this.showloading(false);
+        });
+    };
+    OrderComponent.prototype.goList = function () {
+        this.router.navigate(['/orderList']);
+    };
+    OrderComponent.prototype.readOrderById = function (id) {
+        var _this = this;
+        var url = this.entity.apiurl + '/order/' + id;
+        this.showloading(true);
+        this.order = this.getDefaultObj();
+        this.http.doGet(url).subscribe(function (data) {
+            _this.order = data.json();
+            _this.order.orderDate = _this.pipe.transform(_this.order.orderDate, 'MM/dd/yyyy');
+            _this.obj = _this.order.orderitems;
+            _this.showSave = false;
+            _this.showRead = true;
+            _this.showloading(false);
+            console.log(data);
+        }, function (error) {
+            _this.showloading(false);
+            console.log(error);
+        });
+    };
+    OrderComponent.prototype.goUpdate = function () {
+        var _this = this;
+        var url = this.entity.apiurl + '/order';
+        this.showloading(true);
+        this.http.doPut(url, this.order).subscribe(function (data) {
+            _this.showloading(false);
+        }, function (error) {
+            _this.showloading(false);
+            console.log(error);
+        });
+    };
+    OrderComponent.prototype.goDelete = function () {
+        var _this = this;
+        var url = this.entity.apiurl + '/order/' + this.order.id;
+        this.showloading(true);
+        this.order = this.getDefaultObj();
+        this.http.doDelete(url).subscribe(function (data) {
+            _this.showloading(false);
+            _this.router.navigate(['/orderList']);
+        }, function (error) {
+            _this.showloading(false);
+            console.log(error);
+        });
+    };
+    OrderComponent.prototype.ngOnInit = function () {
+    };
     OrderComponent.prototype.getDefaultObj = function () {
         return {
             "id": 0,
             "orderno": 0,
             "orderDate": Date(),
             "status": "",
-            "customerId": 0,
+            "customer": {
+                "id": 0,
+                "name": "",
+                "email": "",
+                "phone": "",
+                "address": ""
+            },
             "orderItems": [
                 {
                     "id": 0,
@@ -93,7 +178,7 @@ var OrderComponent = (function () {
     OrderComponent = __decorate([
         core_1.Component({
             selector: 'customer',
-            template: " \n    <div class=\"container\">\n        <div class=\"row\">\n            <div class=\"col-md-12\">\n                <div class=\"card\" style=\"margin-top:20px;\">\n                    <div class=\"card-header\">\n                        <div class=\"row\">\n                            <div class=\"col-md-12\">\n                                <div class=\"row\" style=\"margin-bottom:20px;\">\n                                    <div class=\"col-md-2\">\n                                        Customer ID:\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        {{order.customerId}}\n                                    </div>\n                                </div>\n                                <div class=\"row\" style=\"margin-bottom:20px;\">\n                                    <div class=\"col-md-2\">\n                                        Order No:\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        <input class=\"form-control\" type=\"text\" [(ngModel)]=\"order.orderno\" required [ngModelOptions]=\"{standalone: true}\">\n                                    </div>\n                                </div>\n                                <div class=\"row\" style=\"margin-bottom:20px;\">\n                                    <div class=\"col-md-2\">\n                                        Order Date:\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        <input class=\"form-control\" type=\"date\" [(ngModel)]=\"order.orderDate\" required [ngModelOptions]=\"{standalone: true}\" (ngModelChange)=\"changeDate(order.orderDate)\">\n                                    </div>\n                                </div>\n                                <div class=\"row\" style=\"margin-bottom:20px;\">\n                                    <div class=\"col-md-2\">\n                                        Status:\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        <input class=\"form-control\" type=\"text\" [(ngModel)]=\"order.status\" required [ngModelOptions]=\"{standalone: true}\">\n                                    </div>\n                                </div>\n                                <button class=\"btn btn-primary\" type=\"button\" (click)=\"goSave()\">Save</button>\n                                <button class=\"btn btn-primary\" type=\"button\" (click)=\"goUpdate()\" >Update</button> \n                                <button class=\"btn btn-danger\" type=\"button\" (click)=\"goDelete()\">Delete</button>\n                                <button class=\"btn btn-primary\" type=\"button\" (click)=\"goList()\">List</button>\n                            </div>\n                        <div>\n                    </div>\n                    <div class=\"card-body\">\n                    <table class=\"table table-striped table-hover\">\n                        <thead>\n                            <tr>\n                                <th scope=\"col\"></th>\n                                <th scope=\"col\">Quantity</th>\n                                <th scope=\"col\">Total</th>\n                                <th scope=\"col\">Product ID</th>\n                                <th scope=\"col\"></th>\n                            </tr>\n                        </thead>\n                        <tbody>\n                            <tr *ngFor=\"let obj of obj, let i=index\" class=\"table-hover\" >\n                                <td> <button type=\"button\" class=\"btn btn-success btn-sm\" (click)=\"addNewOrder()\"><i class=\"fas fa-plus\" ></i></button></td>\n                                <td><input class=\"form-control\" type=\"text\" [(ngModel)]=\"obj.quantity\" [ngModelOptions]=\"{standalone: true}\"></td>\n                                <td><input class=\"form-control\" type=\"text\" [(ngModel)]=\"obj.total\" [ngModelOptions]=\"{standalone: true}\" readOnly=\"true\"></td>\n                                <td>\n                                    <select class=\"form-control\" [(ngModel)]=\"obj.proudctId\" [ngModelOptions]=\"{standalone: true}\" (ngModelChange)=\"calculateTotalAmt(obj.quantity,obj.proudctId,i)\">\n                                        <option *ngFor=\"let product of productList\" value=\"{{product.id}}\">{{product.name}}</option>\n                                    </select>\n                                </td>\n                                <td> <button type=\"button\" class=\"btn btn-danger btn-sm\" (click)=\"removeOrder(i)\"><i class=\"fas fa-minus\" ></i></button> </td>\n                            <tr>\n                        </tbody>\n                    </table>\n                    </div>\n                    <div class=\"card-footer\">\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n    <!-- <input class=\"form-control\" type=\"text\" (ngModel)=\"order.proudctId\"  [ngModelOptions]=\"{standalone: true}\"> -->\n    ",
+            template: " \n    <div class=\"container\">\n        <div class=\"row\">\n            <div class=\"col-md-12\">\n                <div class=\"card\" style=\"margin-top:20px;\">\n                    <div class=\"card-header\">\n                        <div class=\"row\">\n                            <div class=\"col-md-12\">\n                                <div class=\"row\" style=\"margin-bottom:20px;\" *ngIf=\"showSave\">\n                                    <div class=\"col-md-2\">\n                                        Customer ID:\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        {{order.customerId}}\n                                    </div>\n                                </div>\n                                <div class=\"row\" style=\"margin-bottom:20px;\" *ngIf=\"showSave\">\n                                    <div class=\"col-md-2\">\n                                        Customer Name:\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        {{order.customer.name}}\n                                    </div>\n                                </div>\n                                <div class=\"row\" style=\"margin-bottom:20px;\" *ngIf=\"showRead\">\n                                    <div class=\"col-md-2\">\n                                        Order ID:\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        {{order.id}}\n                                    </div>\n                                </div>\n                                <div class=\"row\" style=\"margin-bottom:20px;\">\n                                    <div class=\"col-md-2\">\n                                        Order No:\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        <input class=\"form-control\" type=\"text\" [(ngModel)]=\"order.orderno\" required [ngModelOptions]=\"{standalone: true}\">\n                                    </div>\n                                </div>\n                                <div class=\"row\" style=\"margin-bottom:20px;\">\n                                    <div class=\"col-md-2\">\n                                        Order Date:\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        <input class=\"form-control\" type=\"date\" [(ngModel)]=\"order.orderDate\" required [ngModelOptions]=\"{standalone: true}\">\n                                    </div>\n                                </div>\n                                <div class=\"row\" style=\"margin-bottom:20px;\">\n                                    <div class=\"col-md-2\">\n                                        Status:\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        <input class=\"form-control\" type=\"text\" [(ngModel)]=\"order.status\" required [ngModelOptions]=\"{standalone: true}\">\n                                    </div>\n                                </div>\n                                <button class=\"btn btn-primary\" type=\"button\" (click)=\"goSave()\">Save</button>\n                                <button class=\"btn btn-primary\" type=\"button\" (click)=\"goUpdate()\" >Update</button> \n                                <button class=\"btn btn-danger\" type=\"button\" (click)=\"goDelete()\">Delete</button>\n                                <button class=\"btn btn-primary\" type=\"button\" (click)=\"goList()\">List</button>\n                            </div>\n                        <div>\n                    </div>\n                    <div class=\"card-body\">\n                    <table class=\"table table-striped table-hover\">\n                        <thead>\n                            <tr>\n                                <th scope=\"col\"></th>\n                                <th scope=\"col\">Quantity</th>\n                                <th scope=\"col\">Total</th>\n                                <th scope=\"col\">Product ID</th>\n                                <th scope=\"col\"></th>\n                            </tr>\n                        </thead>\n                        <tbody>\n                            <tr *ngFor=\"let obj of obj, let i=index\" class=\"table-hover\" >\n                                <td> <button type=\"button\" class=\"btn btn-success btn-sm\" (click)=\"addNewOrder()\"><i class=\"fas fa-plus\" ></i></button></td>\n                                <td><input class=\"form-control\" type=\"text\" [(ngModel)]=\"obj.quantity\" [ngModelOptions]=\"{standalone: true}\"></td>\n                                <td><input class=\"form-control\" type=\"text\" [(ngModel)]=\"obj.total\" [ngModelOptions]=\"{standalone: true}\" readOnly=\"true\"></td>\n                                <td>\n                                    <select class=\"form-control\" [(ngModel)]=\"obj.proudctId\" [ngModelOptions]=\"{standalone: true}\" (ngModelChange)=\"calculateTotalAmt(obj.quantity,obj.proudctId,i)\">\n                                        <option *ngFor=\"let product of productList\" value=\"{{product.id}}\">{{product.name}}</option>\n                                    </select>\n                                </td>\n                                <td> <button type=\"button\" class=\"btn btn-danger btn-sm\" (click)=\"removeOrder(i)\" [disabled]=\"i==0\"><i class=\"fas fa-minus\" ></i></button> </td>\n                            <tr>\n                        </tbody>\n                    </table>\n                    </div>\n                    <div class=\"card-footer\">\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n    <!-- <input class=\"form-control\" type=\"text\" (ngModel)=\"order.proudctId\"  [ngModelOptions]=\"{standalone: true}\"> -->\n    ",
         }), 
         __metadata('design:paramtypes', [entity_service_1.EntityService, http_service_1.HttpService, router_1.Router, router_1.ActivatedRoute])
     ], OrderComponent);

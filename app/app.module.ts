@@ -14,6 +14,7 @@ import { CustomerListComponent } from './customer/customerList.component';
 import { OrderComponent } from './order/order.component';
 import { ProductComponent } from './product/product.component';
 import { ProductListComponent } from './product/productList.component';
+import { OrderListComponent } from './order/orderList.component';
 CustomerListComponent
 @NgModule({
     imports: [
@@ -27,6 +28,7 @@ CustomerListComponent
       CustomerComponent,
       CustomerListComponent,
       OrderComponent,
+      OrderListComponent,
       ProductComponent,
       ProductListComponent
     ],

@@ -21,7 +21,6 @@ enableProdMode();
                         <button class="btn btn-primary" type="button" (click)="goUpdate()" [disabled]="btn_update">Update</button> 
                         <button class="btn btn-danger" type="button" (click)="goDelete()" [disabled]="btn_delete">Delete</button>
                         <button class="btn btn-primary" type="button" (click)="goList()">List</button>
-                        <button class="btn btn-primary float-right" type="button" (click)="goProduct()">Add Product</button>
                     </div>
                     <div class="form-group">
                         <div class="col-md-4" style="font-weight:bold; margin-top:2px">
@@ -191,10 +190,6 @@ export class CustomerComponent{
 
     goList(){
         this.router.navigate(['/customerslist']);
-    }
-
-    goProduct(){
-        this.router.navigate(['/product']);
     }
 
     goNew(){
